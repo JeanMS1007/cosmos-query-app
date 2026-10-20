@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Cosmos Query</title>
+  <defs>
+    <linearGradient id="bg" x1="7" y1="5" x2="57" y2="61" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#18244a" />
+      <stop offset="1" stop-color="#101528" />
+    </linearGradient>
+    <linearGradient id="planet" x1="18" y1="18" x2="47" y2="47" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#75e4dc" />
+      <stop offset="1" stop-color="#5287ff" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#bg)" />
+  <ellipse cx="32" cy="33" rx="24" ry="9.5" transform="rotate(-31 32 33)" fill="none" stroke="#a9b9ff" stroke-width="3" />
+  <circle cx="32" cy="31" r="12" fill="url(#planet)" />
+  <path d="M23 28c4-5 12-7 18-3M22 34c5 5 13 6 19 2" fill="none" stroke="#e6fffc" stroke-linecap="round" stroke-width="2" opacity=".9" />
+  <circle cx="51" cy="18" r="3" fill="#ffc978" />
+  <circle cx="14" cy="45" r="2" fill="#75e4dc" />
+  <circle cx="46" cy="47" r="1.5" fill="#fff" opacity=".85" />
+</svg>

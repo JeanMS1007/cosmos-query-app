@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cosmos Manager</title>
+    <link rel="icon" type="image/svg+xml" href="/cosmos-icon.svg" />
+    <style>
+      :root {
+        --bg: #f6f7f9;
+        --panel: #fff;
+        --text: #1d2330;
+        --muted: #667085;
+        --line: #e1e5ec;
+        --accent: #2f6fed;
+        --danger: #d92d20;
+        --row: #f0f4ff;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #12151c;
+          --panel: #1b202b;
+          --text: #e6e9f0;
+          --muted: #98a2b3;
+          --line: #2c3342;
+          --accent: #5b8cff;
+          --danger: #f97066;
+          --row: #232b3d;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      body {
+        margin: 0;
+        font:
+          14px/1.4 system-ui,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 20px;
+        background: var(--panel);
+        border-bottom: 1px solid var(--line);
+      }
+      header h1 {
+        font-size: 16px;
+        margin: 0;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .brand-icon {
+        display: block;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+      }
+      label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--muted);
+      }
+      main {
+        padding: 20px;
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 auto;
+      }
+      select,
+      input,
+      textarea,
+      button {
+        font: inherit;
+        color: inherit;
+      }
+      select {
+        max-width: 100%;
+        padding: 6px 8px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+      }
+      input {
+        width: 100%;
+        min-width: 0;
+        padding: 6px 8px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+      }
+      textarea {
+        width: 100%;
+        padding: 10px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+        resize: vertical;
+      }
+      button {
+        min-height: 38px;
+        padding: 7px 14px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: var(--panel);
+        cursor: pointer;
+      }
+      button:hover {
+        border-color: var(--accent);
+      }
+      button.primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+      button.connected {
+        background: #16803c;
+        border-color: #16803c;
+        color: #fff;
+      }
+      button.connected:hover {
+        background: #116b31;
+        border-color: #116b31;
+      }
+      button.danger {
+        color: var(--danger);
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      .bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        margin: 10px 0 16px;
+      }
+      .connection-form {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.5fr) minmax(
+            150px,
+            1fr
+          ) auto;
+        align-items: end;
+        gap: 12px;
+      }
+      .connection-form label {
+        min-width: 0;
+        align-items: stretch;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .connection-form button {
+        white-space: nowrap;
+      }
+      .connection-buttons {
+        display: flex;
+        gap: 8px;
+      }
+      .container-field {
+        display: flex;
+        min-width: 240px;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .container-row {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .container-row select {
+        min-width: 220px;
+      }
+      #pk {
+        font-size: 13px;
+      }
+      .spacer {
+        flex: 1;
+      }
+      .stats {
+        color: var(--muted);
+      }
+      .table-wrap {
+        overflow-x: auto;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 600px;
+      }
+      th,
+      td {
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--line);
+        max-width: 260px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      th {
+        color: var(--muted);
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        background: var(--panel);
+      }
+      tbody tr {
+        cursor: pointer;
+      }
+      tbody tr:hover {
+        background: var(--row);
+      }
+      .empty {
+        padding: 32px;
+        text-align: center;
+        color: var(--muted);
+      }
+      dialog {
+        width: min(720px, 94vw);
+        max-height: 90vh;
+        max-height: 90dvh;
+        overflow-y: auto;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel);
+        color: var(--text);
+      }
+      dialog::backdrop {
+        background: rgba(0, 0, 0, 0.45);
+      }
+      dialog h2 {
+        margin: 0 0 10px;
+        font-size: 15px;
+      }
+      dialog textarea {
+        height: min(50vh, 380px);
+      }
+      dialog .bar {
+        margin-bottom: 0;
+      }
+      #toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        max-width: min(420px, calc(100vw - 32px));
+        padding: 10px 14px;
+        border-radius: 8px;
+        background: var(--text);
+        color: var(--bg);
+        display: none;
+      }
+      #toast.error {
+        background: var(--danger);
+        color: #fff;
+      }
+      @media (max-width: 800px) {
+        .connection-form {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .connection-buttons {
+          width: 100%;
+        }
+        .connection-buttons button {
+          width: 100%;
+        }
+      }
+      @media (max-width: 520px) {
+        header {
+          padding: 10px 14px;
+        }
+        main {
+          padding: 14px;
+        }
+        .brand-icon {
+          width: 32px;
+          height: 32px;
+        }
+        .connection-form {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 10px;
+        }
+        #container-control {
+          align-items: stretch;
+          flex-direction: column;
+        }
+        .container-field,
+        #container-control select {
+          width: 100%;
+        }
+        .container-row {
+          width: 100%;
+        }
+        #run-toolbar button {
+          flex: 1 1 100%;
+        }
+        #run-toolbar .spacer {
+          display: none;
+        }
+        #stats {
+          width: 100%;
+        }
+        th,
+        td {
+          padding: 8px;
+        }
+        .empty {
+          padding: 24px 16px;
+        }
+        #toast {
+          right: 16px;
+          bottom: max(16px, env(safe-area-inset-bottom));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <img
+          class="brand-icon"
+          src="/cosmos-icon.svg"
+          alt=""
+          aria-hidden="true"
+        />
+        <h1>Cosmos Manager</h1>
+      </div>
+    </header>
+
+    <main>
+      <section class="bar connection-form" aria-label="Conexão com o Cosmos DB">
+        <label
+          >Endpoint
+          <input
+            id="endpoint"
+            type="url"
+            placeholder="https://<conta>.documents.azure.com:443/"
+        /></label>
+        <label
+          >Chave <input id="key" type="password" autocomplete="new-password"
+        /></label>
+        <label>Banco <input id="database" type="text" /></label>
+        <div class="connection-buttons">
+          <button class="primary" id="connect">Conectar</button>
+          <button type="button" id="clear-connection">Limpar conexão</button>
+        </div>
+      </section>
+      <section class="bar" id="container-control" aria-label="Container" hidden>
+        <div class="container-field">
+          <label for="container">Container</label>
+          <div class="container-row">
+            <select id="container"></select>
+            <span class="stats" id="pk"></span>
+          </div>
+        </div>
+      </section>
+      <textarea id="query" rows="7" spellcheck="false">
+SELECT * FROM c</textarea
+      >
+      <div class="bar" id="run-toolbar">
+        <button class="primary" id="run">Executar (Ctrl+Enter)</button>
+        <button id="new">+ Novo item</button>
+        <label for="column-limit">Colunas
+          <select id="column-limit" aria-label="Quantidade de colunas visíveis">
+            <option value="4">4</option>
+            <option value="8" selected>8</option>
+            <option value="12">12</option>
+            <option value="16">16</option>
+            <option value="24">24</option>
+            <option value="0">Todas</option>
+          </select>
+        </label>
+        <span class="spacer"></span>
+        <span class="stats" id="stats"></span>
+      </div>
+
+      <div class="table-wrap" id="result">
+        <div class="empty">Execute uma consulta para ver os itens.</div>
+      </div>
+      <div class="bar"><button id="more" hidden>Carregar mais</button></div>
+    </main>
+
+    <dialog id="editor">
+      <h2 id="editor-title">Item</h2>
+      <textarea id="json" spellcheck="false"></textarea>
+      <div class="bar">
+        <button class="danger" id="delete">Excluir</button>
+        <span class="spacer"></span>
+        <button id="cancel">Cancelar</button>
+        <button class="primary" id="save">Salvar</button>
+      </div>
+    </dialog>
+
+    <div id="toast"></div>
+
+    <script>
+      const $ = (s) => document.querySelector(s);
+      const state = { items: [], token: null, current: null, ru: 0, db: null };
+      const SYSTEM = ["_rid", "_self", "_etag", "_attachments", "_ts"];
+
+      async function api(url, body) {
+        const res = await fetch(
+          url,
+          body && {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          },
+        );
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || res.statusText);
+        return data;
+      }
+
+      function toast(msg, isError) {
+        const t = $("#toast");
+        t.textContent = msg;
+        t.className = isError ? "error" : "";
+        t.style.display = "block";
+        clearTimeout(toast.timer);
+        toast.timer = setTimeout(() => (t.style.display = "none"), 4000);
+      }
+
+      const target = () => ({
+        db: state.db,
+        container: $("#container").value,
+      });
+      function setConnectionStatus(connected) {
+        const button = $("#connect");
+        button.classList.toggle("connected", connected);
+        button.classList.toggle("primary", !connected);
+        button.textContent = connected ? "Conectado" : "Conectar";
+      }
+      const clean = (item) =>
+        Object.fromEntries(
+          Object.entries(item).filter(([k]) => !SYSTEM.includes(k)),
+        );
+
+      /* ---------- bancos e containers ---------- */
+      async function loadDatabases() {
+        const { databases, defaults } = await api("/api/databases");
+        state.db =
+          defaults.db && databases.includes(defaults.db)
+            ? defaults.db
+            : databases[0] || null;
+        if (state.db) await loadContainers(defaults.container);
+      }
+
+      async function connect() {
+        const button = $("#connect");
+        button.disabled = true;
+        button.textContent = "Conectando...";
+        $("#container-control").hidden = true;
+        state.db = null;
+        $("#container").innerHTML = "";
+        $("#pk").textContent = "";
+        try {
+          const { defaults } = await api("/api/connect", {
+            endpoint: $("#endpoint").value.trim(),
+            key: $("#key").value,
+            database: $("#database").value.trim(),
+          });
+          setConnectionStatus(true);
+          state.db = defaults.db;
+          await loadContainers(defaults.container);
+          toast("Conectado ao Cosmos DB");
+        } catch (e) {
+          setConnectionStatus(false);
+          toast(e.message, true);
+        } finally {
+          button.disabled = false;
+        }
+      }
+
+      async function loadContainers(preferred) {
+        const { containers } = await api(
+          `/api/databases/${encodeURIComponent(state.db)}/containers`,
+        );
+        const sel = $("#container");
+        sel.innerHTML = "";
+        containers.forEach((c) => sel.add(new Option(c.id, c.id)));
+        sel.dataset.pks = JSON.stringify(
+          Object.fromEntries(containers.map((c) => [c.id, c.partitionKey])),
+        );
+        if (preferred && containers.some((c) => c.id === preferred))
+          sel.value = preferred;
+        sel.disabled = containers.length === 0;
+        $("#container-control").hidden = false;
+        showPk();
+        state.items = [];
+        state.token = null;
+        render();
+      }
+
+      function showPk() {
+        const pks = JSON.parse($("#container").dataset.pks || "{}");
+        const pk = pks[$("#container").value];
+        $("#pk").textContent = pk ? `partition key: ${pk}` : "";
+      }
+
+      /* ---------- consulta e tabela ---------- */
+      async function run(append = false) {
+        $("#run").disabled = true;
+        try {
+          const data = await api("/api/query", {
+            ...target(),
+            query: $("#query").value,
+            pageSize: 50,
+            token: append ? state.token : undefined,
+          });
+          state.items = append ? state.items.concat(data.items) : data.items;
+          state.token = data.continuationToken;
+          state.ru = (append ? state.ru : 0) + (data.requestCharge || 0);
+          render();
+        } catch (e) {
+          toast(e.message, true);
+        } finally {
+          $("#run").disabled = false;
+        }
+      }
+
+      function render() {
+        const rows = state.items.map((i) =>
+          i && typeof i === "object" && !Array.isArray(i) ? i : { valor: i },
+        );
+        $("#stats").textContent = state.items.length
+          ? `${state.items.length} itens · ${state.ru.toFixed(2)} RU`
+          : "";
+        $("#more").hidden = !state.token;
+
+        if (!rows.length) {
+          $("#result").innerHTML = '<div class="empty">Nenhum item.</div>';
+          return;
+        }
+        const keys = [...new Set(rows.flatMap((r) => Object.keys(r)))].filter(
+          (k) => !SYSTEM.includes(k),
+        );
+        const cols = ["id", ...keys.filter((k) => k !== "id")].filter((k) =>
+          keys.includes(k),
+        );
+        const columnLimit = Number($("#column-limit").value);
+        const visibleCols = columnLimit === 0 ? cols : cols.slice(0, columnLimit);
+
+        const table = document.createElement("table");
+        const head = table.createTHead().insertRow();
+        visibleCols.forEach(
+          (c) =>
+            (head.appendChild(document.createElement("th")).textContent = c),
+        );
+
+        const body = table.createTBody();
+        rows.forEach((r, idx) => {
+          const tr = body.insertRow();
+          visibleCols.forEach((c) => {
+            const v = r[c];
+            const td = tr.insertCell();
+            td.textContent =
+              v === undefined
+                ? ""
+                : typeof v === "object"
+                  ? JSON.stringify(v)
+                  : String(v);
+            td.title = td.textContent;
+          });
+          tr.onclick = () => openEditor(state.items[idx]);
+        });
+        $("#result").replaceChildren(table);
+      }
+
+      /* ---------- editor ---------- */
+      function openEditor(item) {
+        if (!item || typeof item !== "object" || Array.isArray(item))
+          return toast("Este resultado não é um item editável.", true);
+        state.current = item;
+        $("#editor-title").textContent = item.id
+          ? `Editar item · ${item.id}`
+          : "Novo item";
+        $("#json").value = JSON.stringify(clean(item), null, 2);
+        $("#delete").hidden = !item.id;
+        $("#editor").showModal();
+      }
+
+      $("#save").onclick = async () => {
+        let item;
+        try {
+          item = JSON.parse($("#json").value);
+        } catch (e) {
+          return toast("JSON inválido: " + e.message, true);
+        }
+        try {
+          const { requestCharge } = await api("/api/items/save", {
+            ...target(),
+            item,
+          });
+          $("#editor").close();
+          toast(`Salvo (${requestCharge.toFixed(2)} RU)`);
+          run();
+        } catch (e) {
+          toast(e.message, true);
+        }
+      };
+
+      $("#delete").onclick = async () => {
+        if (!confirm(`Excluir o item "${state.current.id}"?`)) return;
+        try {
+          await api("/api/items/delete", { ...target(), item: state.current });
+          $("#editor").close();
+          toast("Item excluído");
+          run();
+        } catch (e) {
+          toast(e.message, true);
+        }
+      };
+
+      $("#cancel").onclick = () => $("#editor").close();
+      $("#new").onclick = () => {
+        openEditor({});
+        $("#editor-title").textContent = "Novo item";
+        $("#json").value = '{\n  "id": ""\n}';
+      };
+      $("#run").onclick = () => run();
+      $("#column-limit").onchange = () => render();
+      $("#connect").onclick = () => connect();
+      $("#clear-connection").onclick = async () => {
+        try {
+          await api("/api/disconnect", {});
+        } catch (e) {
+          toast(e.message, true);
+        }
+        $("#endpoint").value = "";
+        $("#key").value = "";
+        $("#database").value = "";
+        $("#container-control").hidden = true;
+        $("#container").innerHTML = "";
+        $("#container").dataset.pks = "{}";
+        $("#pk").textContent = "";
+        state.db = null;
+        state.items = [];
+        state.token = null;
+        state.ru = 0;
+        setConnectionStatus(false);
+        render();
+      };
+      $("#more").onclick = () => run(true);
+      $("#container").onchange = () => {
+        showPk();
+        state.items = [];
+        state.token = null;
+        render();
+      };
+      $("#query").addEventListener("keydown", (e) => {
+        if (e.ctrlKey && e.key === "Enter") run();
+      });
+
+      loadDatabases().catch((e) => toast(e.message, true));
+    </script>
+  </body>
+</html>
